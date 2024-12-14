@@ -2,116 +2,273 @@
 <html lang="en">
 <head>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" crossorigin="anonymous">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/material-design-lite/1.3.0/material.indigo-pink.min.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/material-design-icons/3.0.1/iconfont/material-icons.css">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Chat Assistant</title>
+    <title>Short Assistant</title>
     <style>
-        body {
+        :root {
+            --primary-color: #7C3AED;
+            --primary-light: #8B5CF6;
+            --primary-dark: #6D28D9;
+            --secondary-color: #F4F4F5;
+            --text-primary: #18181B;
+            --text-secondary: #71717A;
+            --background: #F8FAFC;
+            --white: #FFFFFF;
+            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            --radius-lg: 16px;
+            --radius-md: 12px;
+            --radius-sm: 8px;
+        }
+
+        * {
             margin: 0;
-            font-family: Roboto, sans-serif;
-            background-color: #FAFAFA; /* Light background */
-            color: #212121;
+            padding: 0;
+            box-sizing: border-box;
         }
-        .header {
-            background-color: #6200EA; /* Purple 500 */
-            color: white;
-            padding: 16px;
-            text-align: center;
-            font-size: 24px;
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--background);
+            color: var(--text-primary);
+            line-height: 1.5;
         }
-        .container {
+
+        .app-container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+            display: grid;
+            grid-template-columns: 300px 1fr;
+            gap: 2rem;
+            height: calc(100vh - 4rem);
+        }
+
+        .sidebar {
+            background: var(--white);
+            border-radius: var(--radius-lg);
+            padding: 1.5rem;
+            box-shadow: var(--shadow-md);
             display: flex;
             flex-direction: column;
-            height: 100vh;
-            max-width: 400px;
-            margin: auto;
-            border: 1px solid #E0E0E0;
-            border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-            background-color: white;
         }
-        .chatbox {
-            flex: 1;
-            padding: 16px;
-            overflow-y: auto;
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-        }
-        .chat-message {
-            padding: 10px 15px;
-            border-radius: 20px;
-            max-width: 80%;
-            word-wrap: break-word; /* Ensure long words break */
-            animation: fadeIn 0.3s ease forwards; /* Apply fade-in animation */
-        }
-        .user-message {
-            align-self: flex-end;
-            background-color: #6200EA; /* Purple 500 */
-            color: white;
-            border-top-left-radius: 0;
-        }
-        .assistant-message {
-            align-self: flex-start;
-            background-color: #E0E0E0; /* Light grey */
-            color: #212121;
-            border-top-right-radius: 0;
-        }
-        .input-area {
-            padding: 10px;
-            border-top: 1px solid #E0E0E0;
-            background-color: #F5F5F5; /* Slightly darker grey */
+
+        .logo-container {
             display: flex;
             align-items: center;
+            gap: 1rem;
+            padding-bottom: 1.5rem;
+            border-bottom: 1px solid var(--secondary-color);
+            margin-bottom: 1.5rem;
         }
-        .input-area input {
-            flex: 1;
-            padding: 10px;
-            border: 1px solid #E0E0E0;
-            border-radius: 20px;
-            margin-right: 10px;
-            transition: border-color 0.3s;
+
+        .logo-container img {
+            width: 32px;
+            height: auto;
         }
-        .input-area input:focus {
-            outline: none;
-            border-color: #6200EA; /* Purple 500 */
+
+        .logo-container h1 {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--text-primary);
         }
-        .input-area button {
-            padding: 10px 15px;
+
+        .credits-container {
+            padding: 1rem;
+            background: var(--background);
+            border-radius: var(--radius-md);
+            margin-bottom: 1rem;
+        }
+
+        .credits-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.75rem;
+        }
+
+        .credits-label {
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+        }
+
+        .credits-count {
+            font-weight: 600;
+            color: var(--primary-color);
+            font-size: 1.25rem;
+        }
+
+        .buy-credits-btn {
+            width: 100%;
+            padding: 0.75rem;
+            background: var(--primary-light);
+            color: var(--white);
             border: none;
-            border-radius: 20px;
-            background-color: #6200EA; /* Purple 500 */
-            color: white;
+            border-radius: var(--radius-sm);
             cursor: pointer;
             display: flex;
             align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            font-size: 0.875rem;
+            transition: all 0.2s ease;
         }
+
+        .buy-credits-btn:hover {
+            background: var(--primary-color);
+            transform: translateY(-1px);
+        }
+
+        .credits-warning {
+            color: #EF4444;
+            font-size: 0.875rem;
+            margin-top: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+
+        .chat-container {
+            background: var(--white);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-md);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .chat-header {
+            padding: 1.5rem;
+            border-bottom: 1px solid var(--secondary-color);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .chat-header h2 {
+            font-size: 1.125rem;
+            font-weight: 600;
+        }
+
+        .chatbox {
+            flex: 1;
+            padding: 1.5rem;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            background: var(--background);
+        }
+
+        .chat-message {
+            max-width: 80%;
+            padding: 1rem;
+            border-radius: var(--radius-md);
+            animation: slideIn 0.3s ease-out;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .user-message {
+            align-self: flex-end;
+            background: var(--primary-color);
+            color: var(--white);
+            border-bottom-right-radius: 4px;
+        }
+
+        .assistant-message {
+            align-self: flex-start;
+            background: var(--white);
+            color: var(--text-primary);
+            border-bottom-left-radius: 4px;
+        }
+
+        .image-container {
+            margin-top: 0.5rem;
+        }
+
+        .image-container img {
+            border-radius: var(--radius-md);
+            max-width: 100%;
+            height: auto;
+            box-shadow: var(--shadow-md);
+        }
+
+        .download-btn {
+            margin-top: 0.75rem;
+            background: var(--primary-color);
+            color: var(--white);
+            border: none;
+            padding: 0.75rem 1rem;
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.875rem;
+            transition: all 0.2s ease;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .download-btn:hover {
+            background: var(--primary-dark);
+            transform: translateY(-1px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .input-area {
+            padding: 1.5rem;
+            background: var(--white);
+            border-top: 1px solid var(--secondary-color);
+            display: flex;
+            gap: 1rem;
+        }
+
+        .input-area input {
+            flex: 1;
+            padding: 0.875rem 1.25rem;
+            border: 2px solid var(--secondary-color);
+            border-radius: var(--radius-md);
+            font-size: 1rem;
+            transition: all 0.2s ease;
+            font-family: inherit;
+            background: var(--background);
+        }
+
+        .input-area input:focus {
+            outline: none;
+            border-color: var(--primary-light);
+            box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.1);
+        }
+
+        .input-area button {
+            background: var(--primary-color);
+            color: var(--white);
+            border: none;
+            padding: 0.875rem 1.5rem;
+            border-radius: var(--radius-md);
+            font-size: 1rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.2s ease;
+            font-weight: 500;
+        }
+
         .input-area button:hover {
-            background-color: #3700B3; /* Darker Purple 700 */
+            background: var(--primary-dark);
+            transform: translateY(-1px);
+            box-shadow: var(--shadow-sm);
         }
-        .input-area .material-icons {
-            margin-right: 5px;
+
+        .input-area button:active {
+            transform: translateY(0);
         }
-        .spinner {
-            display: none;
-            border: 4px solid rgba(0, 0, 0, 0.1);
-            width: 24px;
-            height: 24px;
-            border-radius: 50%;
-            border-top-color: #6200EA; /* Purple 500 */
-            animation: spin 1s linear infinite;
-        }
-        @keyframes spin {
-            0% {
-                transform: rotate(0deg);
-            }
-            100% {
-                transform: rotate(360deg);
-            }
-        }
-        @keyframes fadeIn {
+
+        @keyframes slideIn {
             from {
                 opacity: 0;
                 transform: translateY(10px);
@@ -121,21 +278,197 @@
                 transform: translateY(0);
             }
         }
+
+        @media (max-width: 768px) {
+            .app-container {
+                grid-template-columns: 1fr;
+                margin: 0;
+                height: 100vh;
+                padding: 0;
+            }
+
+            .sidebar {
+                display: none;
+            }
+
+            .chat-container {
+                border-radius: 0;
+                height: 100vh;
+            }
+
+            .chat-header {
+                padding: 1rem;
+            }
+
+            .chatbox {
+                padding: 1rem;
+            }
+
+            .input-area {
+                padding: 1rem;
+            }
+        }
+
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .modal {
+            background: var(--white);
+            padding: 2rem;
+            border-radius: var(--radius-lg);
+            width: 90%;
+            max-width: 400px;
+            text-align: center;
+            box-shadow: var(--shadow-md);
+        }
+
+        .modal h3 {
+            margin-bottom: 1rem;
+            color: var(--text-primary);
+        }
+
+        .modal p {
+            color: var(--text-secondary);
+            margin-bottom: 1.5rem;
+            font-size: 0.875rem;
+        }
+
+        .modal img {
+            width: 200px;
+            height: 200px;
+            margin-bottom: 1rem;
+            background: white;
+            padding: 1rem;
+        }
+
+        .close-modal {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: var(--text-secondary);
+        }
+
+        .modal-content {
+            position: relative;
+        }
+
+        .upi-details {
+            background: var(--background);
+            padding: 0.75rem;
+            border-radius: var(--radius-md);
+            margin: 1rem 0;
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+        }
+
+        .qr-container {
+            position: relative;
+            display: inline-block;
+            margin-bottom: 1rem;
+        }
+
+        .refresh-qr {
+            position: absolute;
+            bottom: 1rem;
+            right: 1rem;
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 36px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .refresh-qr:hover {
+            background: var(--primary-dark);
+            transform: rotate(180deg);
+        }
     </style>
 </head>
 <body>
-    <div class="header">
-    <img src="https://i.postimg.cc/kMQwJnSz/1685668637841.png" alt="Logo" style="width: 40px; height: 20; margin-right: 20px;">
-    Short Assistant
-</div>
+    <div class="app-container">
+        <aside class="sidebar">
+            <div class="logo-container">
+                <img src="https://i.postimg.cc/kMQwJnSz/1685668637841.png" alt="Logo">
+                <h1>Short Assistant</h1>
+            </div>
+            <div class="credits-container">
+                <div class="credits-info">
+                    <span class="credits-label">Image Credits</span>
+                    <span id="creditsCount" class="credits-count">5</span>
+                </div>
+                <button id="buyCredits" class="buy-credits-btn">
+                    <span class="material-icons">add_circle</span>
+                    Buy Credits
+                </button>
+            </div>
+        </aside>
 
-    <div class="container">
-        <div id="chatbox" class="chatbox"></div>
-        <div class="input-area">
-            <input id="chatInput" type="text" placeholder="Type your message" />
-            <button id="sendButton">
-                <span class="material-icons">send</span> Send
-            </button>
+        <main class="chat-container">
+            <header class="chat-header">
+                <h2>Chat Session</h2>
+            </header>
+
+            <div id="chatbox" class="chatbox"></div>
+
+            <div class="input-area">
+                <input 
+                    id="chatInput" 
+                    type="text" 
+                    placeholder="Type your message or use /image for image generation..."
+                    autocomplete="off"
+                >
+                <button id="sendButton">
+                    <span class="material-icons">send</span>
+                    Send
+                </button>
+            </div>
+        </main>
+    </div>
+
+    <div id="paymentModal" class="modal-overlay">
+        <div class="modal">
+            <div class="modal-content">
+                <button class="close-modal" onclick="closePaymentModal()">
+                    <span class="material-icons">close</span>
+                </button>
+                <h3>Purchase 50 Credits</h3>
+                <p>Scan the QR code to pay ₹20 via UPI</p>
+                <div class="qr-container">
+                    <img id="qrImage" alt="UPI QR Code" style="background: white; padding: 1rem; width: 300px; height: 300px;">
+                    <button id="refreshQR" class="refresh-qr">
+                        <span class="material-icons">refresh</span>
+                    </button>
+                </div>
+                <div class="upi-details">
+                    <div>UPI ID: 9160068402@ybl</div>
+                    <div>Amount: ₹20</div>
+                </div>
+                <p>After payment, click the verify button below to receive your credits</p>
+                <button id="verifyPayment" class="buy-credits-btn">
+                    <span class="material-icons">check_circle</span>
+                    Verify Payment
+                </button>
+            </div>
         </div>
     </div>
 
@@ -143,28 +476,148 @@
     const sendButton = document.getElementById("sendButton");
     const chatInput = document.getElementById('chatInput');
     const chatbox = document.getElementById('chatbox');
+    const creditsCount = document.getElementById('creditsCount');
+    const buyCreditsBtn = document.getElementById('buyCredits');
+
+    // Clear any existing credits and set to 5
+    localStorage.removeItem('imageCredits');
+    let credits = 5;
+    updateCreditsDisplay();
+
+    function updateCreditsDisplay() {
+        creditsCount.textContent = credits;
+        localStorage.setItem('imageCredits', credits);
+    }
+
+    let currentTransactionId = '';
+
+    function generateTransactionId() {
+        return 'SA' + Date.now().toString(36) + Math.random().toString(36).substr(2, 5);
+    }
+
+    function generateQRCode() {
+        const upiUrl = `upi://pay?pa=9160068402@ybl&pn=Short_Assistant&am=20&cu=INR`;
+        return `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(upiUrl)}&bgcolor=ffffff`;
+    }
+
+    function updateQRCode() {
+        const qrCodeUrl = generateQRCode();
+        document.getElementById('qrImage').src = qrCodeUrl;
+    }
+
+    function showPaymentModal() {
+        document.getElementById('paymentModal').style.display = 'flex';
+        updateQRCode();
+    }
+
+    function closePaymentModal() {
+        document.getElementById('paymentModal').style.display = 'none';
+        currentTransactionId = '';
+    }
+
+    buyCreditsBtn.addEventListener('click', () => {
+        showPaymentModal();
+    });
+
+    document.getElementById('verifyPayment').addEventListener('click', () => {
+        credits += 50;
+        updateCreditsDisplay();
+        displayMessage('Successfully purchased 50 credits! Thank you for your purchase.', false);
+        closePaymentModal();
+    });
+
+    // Refresh QR code button
+    document.getElementById('refreshQR').addEventListener('click', () => {
+        updateQRCode();
+    });
+
+    document.getElementById('paymentModal').addEventListener('click', (e) => {
+        if (e.target.className === 'modal-overlay') {
+            closePaymentModal();
+        }
+    });
+
+    async function addWatermark(imageUrl) {
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d');
+        const img = new Image();
+        const watermarkImg = new Image();
+        
+        return new Promise((resolve) => {
+            watermarkImg.onload = () => {
+                img.onload = () => {
+                    canvas.width = img.width;
+                    canvas.height = img.height;
+                    ctx.drawImage(img, 0, 0);
+                    
+                    // Calculate watermark size (8% of the main image width)
+                    const watermarkWidth = img.width * 0.08;
+                    const watermarkHeight = (watermarkWidth / watermarkImg.width) * watermarkImg.height;
+                    const padding = 15;
+                    
+                    // Add semi-transparent watermark
+                    ctx.globalAlpha = 0.4; // Slightly more transparent
+                    ctx.drawImage(
+                        watermarkImg,
+                        canvas.width - watermarkWidth - padding,
+                        canvas.height - watermarkHeight - padding,
+                        watermarkWidth,
+                        watermarkHeight
+                    );
+                    ctx.globalAlpha = 1.0;
+                    
+                    resolve(canvas.toDataURL());
+                };
+                img.crossOrigin = "Anonymous";
+                img.src = imageUrl;
+            };
+            watermarkImg.crossOrigin = "Anonymous";
+            watermarkImg.src = "https://i.postimg.cc/kMQwJnSz/1685668637841.png";
+        });
+    }
 
     async function displayMessage(message, isUser, imageUrl = null) {
         const msgElem = document.createElement('div');
+        msgElem.className = `chat-message ${isUser ? 'user-message' : 'assistant-message'}`;
+
         if (imageUrl) {
+            const imageContainer = document.createElement('div');
+            imageContainer.className = 'image-container';
+            
+            // Add watermark to image
+            const watermarkedImageUrl = await addWatermark(imageUrl);
+            
             const imgElem = document.createElement('img');
-            imgElem.src = imageUrl;
+            imgElem.src = watermarkedImageUrl;
             imgElem.alt = 'Generated Image';
-            imgElem.style.maxWidth = '100%'; // Make sure image fits well
-            imgElem.style.borderRadius = '20px'; // Add some styling
-            msgElem.appendChild(imgElem);
+            imgElem.style.maxWidth = '100%';
+            imgElem.style.borderRadius = '12px';
+            
+            // Add download button
+            const downloadBtn = document.createElement('button');
+            downloadBtn.className = 'download-btn';
+            downloadBtn.innerHTML = '<span class="material-icons">download</span>Download';
+            downloadBtn.onclick = () => {
+                const link = document.createElement('a');
+                link.href = watermarkedImageUrl;
+                link.download = 'generated-image.png';
+                link.click();
+            };
+            
+            imageContainer.appendChild(imgElem);
+            imageContainer.appendChild(downloadBtn);
+            msgElem.appendChild(imageContainer);
         } else {
             msgElem.textContent = message;
         }
-        msgElem.className = `chat-message ${isUser ? 'user-message' : 'assistant-message'}`;
+
         chatbox.appendChild(msgElem);
-        chatbox.scrollTop = chatbox.scrollHeight; // Scroll to the bottom
+        chatbox.scrollTop = chatbox.scrollHeight;
         
-        // For assistant messages, add a slight delay before displaying
         if (!isUser) {
-            msgElem.style.opacity = 0; // Start with opacity 0
-            await new Promise(resolve => setTimeout(resolve, 300)); // Delay
-            msgElem.style.opacity = 1; // Fade in
+            msgElem.style.opacity = 0;
+            await new Promise(resolve => setTimeout(resolve, 300));
+            msgElem.style.opacity = 1;
         }
     }
 
@@ -194,6 +647,16 @@
         displayMessage(message, true);
         chatInput.value = '';
 
+        if (message.startsWith('/image')) {
+            if (credits <= 0) {
+                displayMessage('Sorry, you need credits to generate images. Please purchase more credits.', false);
+                showCreditWarning();
+                return;
+            }
+            credits--; // Deduct one credit
+            updateCreditsDisplay();
+        }
+
         const apiUrl = message.startsWith('/image') ? 
             'https://backend.buildpicoapps.com/aero/run/image-generation-api?pk=v1-Z0FBQUFBQm5HUEtMSjJkakVjcF9IQ0M0VFhRQ0FmSnNDSHNYTlJSblE0UXo1Q3RBcjFPcl9YYy1OZUhteDZWekxHdWRLM1M1alNZTkJMWEhNOWd4S1NPSDBTWC12M0U2UGc9PQ==' : 
             'https://backend.buildpicoapps.com/aero/run/llm-api?pk=v1-Z0FBQUFBQm5HUEtMSjJkakVjcF9IQ0M0VFhRQ0FmSnNDSHNYTlJSblE0UXo1Q3RBcjFPcl9YYy1OZUhteDZWekxHdWRLM1M1alNZTkJMWEhNOWd4S1NPSDBTWC12M0U2UGc9PQ==';
@@ -202,19 +665,45 @@
             const data = await callApi(apiUrl, message);
             if (data.status === 'success') {
                 if (message.startsWith('/image') && data.imageUrl) {
-                    displayMessage('', false, data.imageUrl); // Display image if available
+                    displayMessage('', false, data.imageUrl);
                 } else {
                     displayMessage(data.text, false);
                 }
             } else {
                 displayMessage('An error occurred. Please try again.', false);
+                if (message.startsWith('/image')) {
+                    credits++; // Refund the credit if image generation failed
+                    updateCreditsDisplay();
+                }
             } 
         } catch (error) {
             console.error('Error:', error);
             displayMessage('An error occurred. Please try again.', false);
+            if (message.startsWith('/image')) {
+                credits++; // Refund the credit if image generation failed
+                updateCreditsDisplay();
+            }
         }
     });
-</script>
 
-</body> 
+    chatInput.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+            sendButton.click();
+        }
+    });
+
+    function showCreditWarning() {
+        const warningElem = document.createElement('div');
+        warningElem.className = 'credits-warning';
+        warningElem.innerHTML = '<span class="material-icons">error</span> Not enough credits for image generation';
+        
+        const lastMessage = chatbox.lastElementChild;
+        if (lastMessage) {
+            lastMessage.appendChild(warningElem);
+        }
+    }
+    </script>
+</body>
 </html>
+
+
