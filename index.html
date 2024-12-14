@@ -402,6 +402,72 @@
             background: var(--primary-dark);
             transform: rotate(180deg);
         }
+
+        /* Add styles for ratio selector */
+        .ratio-selector {
+            position: fixed;
+            bottom: 80px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #ffffff;
+            padding: 1rem;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            display: none;
+            z-index: 1000;
+            border: 1px solid #e5e7eb;
+        }
+
+        .ratio-selector.show {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        .ratio-option {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            cursor: pointer;
+            padding: 0.5rem;
+            border-radius: 8px;
+            transition: all 0.3s;
+            border: 2px solid transparent;
+        }
+
+        .ratio-option:hover {
+            background: #f3f4f6;
+        }
+
+        .ratio-option.selected {
+            background: #7C3AED;
+            color: white;
+            border-color: #6D28D9;
+        }
+
+        .ratio-icon {
+            width: 40px;
+            height: 40px;
+            border: 2px solid currentColor;
+            margin-bottom: 0.5rem;
+            border-radius: 4px;
+            background: #f9fafb;
+        }
+
+        .square-icon {
+            width: 40px;
+            height: 40px;
+        }
+
+        .portrait-icon {
+            height: 48px;
+            width: 36px;
+        }
+
+        .landscape-icon {
+            height: 36px;
+            width: 48px;
+        }
     </style>
 </head>
 <body>
@@ -419,6 +485,10 @@
                 <button id="buyCredits" class="buy-credits-btn">
                     <span class="material-icons">add_circle</span>
                     Buy Credits
+                </button>
+                <button id="clearChat" class="buy-credits-btn" style="margin-top: 1rem;">
+                    <span class="material-icons">delete</span>
+                    Clear Chat
                 </button>
             </div>
         </aside>
@@ -443,6 +513,21 @@
                 </button>
             </div>
         </main>
+    </div>
+
+    <div class="ratio-selector" id="ratioSelector">
+        <div class="ratio-option selected" data-ratio="1:1">
+            <div class="ratio-icon square-icon"></div>
+            <span>Square</span>
+        </div>
+        <div class="ratio-option" data-ratio="4:3">
+            <div class="ratio-icon landscape-icon"></div>
+            <span>Landscape</span>
+        </div>
+        <div class="ratio-option" data-ratio="3:4">
+            <div class="ratio-icon portrait-icon"></div>
+            <span>Portrait</span>
+        </div>
     </div>
 
     <div id="paymentModal" class="modal-overlay">
@@ -478,11 +563,42 @@
     const chatbox = document.getElementById('chatbox');
     const creditsCount = document.getElementById('creditsCount');
     const buyCreditsBtn = document.getElementById('buyCredits');
+    const clearChatBtn = document.getElementById('clearChat');
 
     // Clear any existing credits and set to 5
     localStorage.removeItem('imageCredits');
     let credits = 5;
     updateCreditsDisplay();
+
+    // Initialize chat history from localStorage or empty array
+    let chatHistory = JSON.parse(localStorage.getItem('chatHistory')) || [];
+    let lastContext = localStorage.getItem('lastContext') || '';
+
+    // Load chat history on page load
+    function loadChatHistory() {
+        chatbox.innerHTML = ''; // Clear current chatbox
+        chatHistory.forEach(async (chat) => {
+            await displayMessage(chat.message, chat.isUser, chat.imageUrl, false);
+        });
+    }
+
+    // Save chat to history
+    function saveChatToHistory(message, isUser, imageUrl = null) {
+        chatHistory.push({ message, isUser, imageUrl });
+        localStorage.setItem('chatHistory', JSON.stringify(chatHistory));
+    }
+
+    // Clear chat history
+    function clearChatHistory() {
+        chatHistory = [];
+        lastContext = '';
+        localStorage.removeItem('chatHistory');
+        localStorage.removeItem('lastContext');
+        chatbox.innerHTML = '';
+        displayMessage('Chat history cleared.', false);
+    }
+
+    clearChatBtn.addEventListener('click', clearChatHistory);
 
     function updateCreditsDisplay() {
         creditsCount.textContent = credits;
@@ -576,7 +692,7 @@
         });
     }
 
-    async function displayMessage(message, isUser, imageUrl = null) {
+    async function displayMessage(message, isUser, imageUrl = null, saveToHistory = true) {
         const msgElem = document.createElement('div');
         msgElem.className = `chat-message ${isUser ? 'user-message' : 'assistant-message'}`;
 
@@ -619,16 +735,39 @@
             await new Promise(resolve => setTimeout(resolve, 300));
             msgElem.style.opacity = 1;
         }
+
+        if (saveToHistory) {
+            saveChatToHistory(message, isUser, imageUrl);
+        }
     }
 
     async function callApi(apiUrl, prompt) {
         chatInput.value = "Typing...";
         chatInput.disabled = true;
         sendButton.disabled = true;
+
+        // Format the image prompt with size
+        let finalPrompt = prompt;
+        if (prompt.startsWith('/image')) {
+            // Remove the /image command for the actual prompt
+            finalPrompt = prompt.replace('/image', '').trim();
+        }
+
+        const payload = {
+            prompt: finalPrompt
+        };
+
+        // Add size parameter for image generation
+        if (prompt.startsWith('/image')) {
+            payload.size = selectedRatio;
+        }
+
+        console.log('API payload:', payload); // Debug log
+
         const response = await fetch(apiUrl, {
             method: 'POST',
             headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({prompt})
+            body: JSON.stringify(payload)
         });
 
         chatInput.value = "";
@@ -638,11 +777,44 @@
         return response.json();
     }
 
+    let selectedRatio = "1024x1024"; // Default square ratio
+    const ratioSelector = document.getElementById('ratioSelector');
+    const ratioOptions = document.querySelectorAll('.ratio-option');
+
+    // Show ratio selector when typing /image
+    chatInput.addEventListener('input', (e) => {
+        if (e.target.value.trim().startsWith('/image')) {
+            ratioSelector.classList.add('show');
+        } else {
+            ratioSelector.classList.remove('show');
+        }
+    });
+
+    // Handle ratio selection
+    const ratioMappings = {
+        "1:1": "1024x1024",
+        "4:3": "1024x768",
+        "3:4": "768x1024"
+    };
+
+    ratioOptions.forEach(option => {
+        option.addEventListener('click', () => {
+            ratioOptions.forEach(opt => opt.classList.remove('selected'));
+            option.classList.add('selected');
+            const ratio = option.dataset.ratio;
+            selectedRatio = ratioMappings[ratio];
+            console.log('Selected ratio:', selectedRatio); // Debug log
+        });
+    });
+
     chatInput.focus();
 
     sendButton.addEventListener('click', async () => {
         const message = chatInput.value.trim();
         if (!message) return;
+
+        // Hide ratio selector
+        ratioSelector.classList.remove('show');
 
         displayMessage(message, true);
         chatInput.value = '';
@@ -653,7 +825,7 @@
                 showCreditWarning();
                 return;
             }
-            credits--; // Deduct one credit
+            credits--;
             updateCreditsDisplay();
         }
 
@@ -668,19 +840,21 @@
                     displayMessage('', false, data.imageUrl);
                 } else {
                     displayMessage(data.text, false);
+                    lastContext = data.text;
+                    localStorage.setItem('lastContext', lastContext);
                 }
             } else {
                 displayMessage('An error occurred. Please try again.', false);
                 if (message.startsWith('/image')) {
-                    credits++; // Refund the credit if image generation failed
+                    credits++;
                     updateCreditsDisplay();
                 }
-            } 
+            }
         } catch (error) {
             console.error('Error:', error);
             displayMessage('An error occurred. Please try again.', false);
             if (message.startsWith('/image')) {
-                credits++; // Refund the credit if image generation failed
+                credits++;
                 updateCreditsDisplay();
             }
         }
@@ -691,6 +865,9 @@
             sendButton.click();
         }
     });
+
+    // Load chat history when page loads
+    loadChatHistory();
 
     function showCreditWarning() {
         const warningElem = document.createElement('div');
@@ -705,5 +882,3 @@
     </script>
 </body>
 </html>
-
-
